@@ -1,8 +1,9 @@
 # Custom
 
 config.py
-.venv/
-
+Scripts/
+Lib/
+pyvenv.cfg
 
 
 # Python
