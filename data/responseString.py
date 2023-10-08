@@ -13,7 +13,8 @@ class IndexMessage(Enum):
 
 
 class JwtMessage(Enum):
-    FAIL_NOT_EXISTS = '[jwt] 유효하지 않은 토큰'
+    FAIL_NOT_INVALID = '[jwt] 유효하지 않는 토큰'
+    FAIL_NOT_EXISTS = '[jwt] 존재하지 않는 토큰'
     ERROR = '[jwt] 요청 오류 발생'
 
 

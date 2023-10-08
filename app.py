@@ -2,7 +2,9 @@ from flask import Flask
 from sqlalchemy import create_engine
 from flask_cors import CORS
 
-from views import create_endpoint
+from models import *
+from services import *
+from views import *
 
 class Services:
     pass
@@ -20,12 +22,17 @@ def create_app(test_config = None):
     database = create_engine(app.config['DB_URL'], encoding="utf-8", max_overflow=0)
 
     ## Presistence Layer
+    user_dao = UserDao(database)
 
     ## Business Layer
     services = Services
+    services.jwt_service = JWTService(user_dao, app.config)
+    services.user_service = UserService(user_dao)
 
     ## endpoint 생성
     create_endpoint(app, services)
+    app.register_blueprint(create_user_endpoint(services, app.config), url_prefix='/user')
+
 
     return app
 
