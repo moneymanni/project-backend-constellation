@@ -27,12 +27,13 @@ def create_app(test_config = None):
     ## Business Layer
     services = Services
     services.jwt_service = JWTService(user_dao, app.config)
+    services.auth_service = AuthService(user_dao)
     services.user_service = UserService(user_dao)
 
     ## endpoint 생성
     create_endpoint(app, services)
+    app.register_blueprint(create_auth_endpoint(services, app.config), url_prefix='/auth')
     app.register_blueprint(create_user_endpoint(services, app.config), url_prefix='/user')
-
 
     return app
 

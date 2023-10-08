@@ -19,12 +19,14 @@ class JwtMessage(Enum):
 
 
 class AuthMessage(Enum):
-    SUCCESS = '[Auth] 요청 처리 완료'
-    FAIL = '[Auth] 요청 처리 실패'
-    FAIL_IS_LOGIN = '[Auth] 로그인 실패'
-    FAIL_IS_LOGOUT = '[Auth] 로그아웃 실패'
-    FAIL_NOT_PERMISSION = '[Auth] 권한 없음'
-    ERROR = '[user] 요청 중 오류 발생'
+    LOGIN = '[auth] 로그인 완료'
+    LOGOUT = '[auth] 로그아웃 완료'
+    FAIL_IS_LOGIN = '[auth] 로그인 실패'
+    FAIL_IS_LOGOUT = '[auth] 로그아웃 실패'
+    FAIL_NOT_PERMISSION = '[auth] 권한 없음'
+    FAIL_NOT_MATCH = '[auth] 사용자 정보가 일치하지 않음'
+    FAIL_NOT_EXISTS = '[auth] 사용자 정보가 존재하지 않음'
+    ERROR = '[auth] 요청 중 오류 발생'
 
 
 class UserMessage(Enum):
