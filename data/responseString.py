@@ -38,3 +38,13 @@ class UserMessage(Enum):
     FAIL_EMAIL_ALREADY_EXISTS = '[user] 이미 존재하는 이메일'
     FAIL_NOT_EMAIL = '[user] 유효 하지 않은 이메일'
     ERROR = '[user] 요청 중 오류 발생'
+
+class NoteMessage(Enum):
+    CREATE = '[note] 노트 정보 추가 완료'
+    READ = '[note] 노트 정보 조회 완료'
+    UPDATE = '[note] 노트 정보 수정 완료'
+    DELETE = '[note] 노트 정보 삭제 완료'
+    GET = '[note] 노트 정보 요청 완료'
+    FAIL_NOT_PERMISSION = '[note] 노트 접근 권한 없음'
+    FAIL_NOT_EXISTS = '[note] 존재하지 않는 노트'
+    ERROR = '[note] 요청 중 오류 발생'

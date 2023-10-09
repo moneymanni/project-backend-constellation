@@ -7,5 +7,6 @@ __all__ = [
     "IndexMessage",
     "JwtMessage",
     "AuthMessage",
-    "UserMessage"
+    "UserMessage",
+    "NoteMessage"
 ]
