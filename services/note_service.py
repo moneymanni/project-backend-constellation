@@ -1,5 +1,3 @@
-import json
-
 from data import NoteMessage
 
 class NoteService:
@@ -23,7 +21,7 @@ class NoteService:
         finally:
             if note_owner_id is None:
                 return NoteMessage.ERROR
-            if note_owner_id == -1:
+            elif note_owner_id == -1:
                 return NoteMessage.FAIL_NOT_EXISTS
 
         return True if user_id == note_owner_id else False
@@ -72,29 +70,6 @@ class NoteService:
 
 
     # read
-    def get_list_of_user_note(self, user_id: int) -> list:
-        """사용자 id로 사용자의 노트 목록을 조회합니다.
-        만약 노트 목록이 존재하지 않거나 에러가 발생하면 NoteMessage를 반환합니다.
-
-        :param user_id: 조회할 사용자 id
-        :return: 노트 정보가 담긴 리스트:
-            [{
-                'note_id': int,             # 노트 id
-                'title': str,               # 노트 제목
-                'description': str,         # 노트 설명
-                'shared_permission': int,   # 노트 공유 권한
-                'user_id': int,             # 노트 소유주(사용자) id
-                'created_at': str,          # 노트 생성일
-                'updated_at': str           # 노트 마지막 수정일
-            }]
-        """
-        try:
-            note_list = self.note_dao.get_note_list(user_id)
-        except Exception as e:
-            return NoteMessage.ERROR
-
-        return note_list if note_list else NoteMessage.FAIL_NOT_EXISTS
-
     def get_user_chosen_note(self, note_id: int) -> dict:
         """노트 id로 노트 정보를 조회합니다.
         만약 노트가 존재하지 않거나 에러가 발생하면 NoteMessage를 반환합니다.
@@ -119,6 +94,28 @@ class NoteService:
         return note if note else NoteMessage.FAIL_NOT_EXISTS
 
 
+    def get_list_of_user_note(self, user_id: int) -> list:
+        """사용자 id로 사용자의 노트 목록을 조회합니다.
+        만약 노트 목록이 존재하지 않거나 에러가 발생하면 NoteMessage를 반환합니다.
+
+        :param user_id: 조회할 사용자 id
+        :return: 노트 정보를 포함한 리스트:
+            [{
+                'note_id': int,             # 노트 id
+                'title': str,               # 노트 제목
+                'description': str,         # 노트 설명
+                'shared_permission': int,   # 노트 공유 권한
+                'user_id': int,             # 노트 소유주(사용자) id
+                'created_at': str,          # 노트 생성일
+                'updated_at': str           # 노트 마지막 수정일
+            }]
+        """
+        try:
+            note_list = self.note_dao.get_note_list(user_id)
+        except Exception as e:
+            return NoteMessage.ERROR
+
+        return note_list if note_list else NoteMessage.FAIL_NOT_EXISTS
     # update
     def update_note(self, note: dict) -> str:
         """노트의 제목, 설명, 공유 권한 받아 노트 정보를 수정합니다.
@@ -143,14 +140,11 @@ class NoteService:
                 return NoteMessage.ERROR
 
         try:
-            updated_user = self.note_dao.get_note_info(note['note_id'])
+            updated_note = self.note_dao.get_note_info(note['note_id'])
         except Exception as e:
             return NoteMessage.ERROR
-        finally:
-            if updated_user is None:
-                return NoteMessage.ERROR
 
-        return updated_user['updated_at'] if updated_user else NoteMessage.ERROR
+        return updated_note['updated_at'] if updated_note else NoteMessage.ERROR
 
 
     # delete
@@ -167,4 +161,4 @@ class NoteService:
         except Exception as e:
             return NoteMessage.ERROR
 
-        return is_deleted
+        return is_deleted if is_deleted is not None else NoteMessage.ERROR

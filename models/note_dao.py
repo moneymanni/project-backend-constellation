@@ -87,7 +87,7 @@ class NoteDao:
 
     def get_note_list(self, user_id: int) -> list:
         """사용자 id로 사용자의 모든 노트 정보를 조회한다.
-        만약 사용자의 노트 정보가 존재하지 않거나 에러가 발생하면 None을 반환한다.
+        만약 에러가 발생하면 None을 반환한다.
 
         :param user_id: 조회할 사용자 id
         :return: 모든 노트 정보가 포함된 리스트:
@@ -117,7 +117,7 @@ class NoteDao:
                 'user_id': user_id
             }).fetchall()
         except Exception as e:
-            return e
+            return None
 
         return [{
             'note_id': note['id'],
@@ -127,7 +127,7 @@ class NoteDao:
             'user_id': note['user_id'],
             'created_at': note['created_at'],
             'updated_at': note['updated_at']
-        } for note in note_list] if note_list else None
+        } for note in note_list]
 
     def find_user_id_by_note_id(self, note_id: int) -> int:
         """노트 id로 해당 노트의 소유주(사용자) id를 찾습니다.

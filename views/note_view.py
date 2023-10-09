@@ -19,18 +19,18 @@ def create_note_endpoint(services):
 
         :request: access 토큰이 포함된 헤더:
             { "accessToken": str }
-        :request: 노트 생성을 위한 노트 정보가 담긴 json 객체:
+        :request: 노트 생성을 위한 노트 정보를 포함한 json 객체:
             {
-                "title":str,
-                "description": str,
-                "sharedPermission": int
+                "title":str,            # 노트 제목
+                "description": str,     # 노트 설명
+                "sharedPermission": int # 노트 공유 권한
             }
-        :response: 상태, 결과메시지, 데이터가 담긴 json 객체:
+        :response: 상태, 결과메시지, 데이터를 포함한 json 객체:
             {
                 "state": str,           # 상태
                 "message": str,         # 결과 메시지
                 "data": {               # 반환하는 데이터
-                        "noteId": str     # 가입한 사용자 id
+                        "noteId": str   # 생성한 노트 id
                 }
             }
         """
@@ -42,9 +42,9 @@ def create_note_endpoint(services):
         new_note = {
             'title': body['title'],
             'description': body['description'],
-            'shared_permission': body['sharedPermission']
+            'shared_permission': body['sharedPermission'],
+            'user_id': g.user_id
         }
-        new_note['user_id'] = g.user_id
 
         try:
             new_note_id = note_service.create_new_note(new_note)
@@ -176,10 +176,6 @@ def create_note_endpoint(services):
 
         :request: access 토큰이 포함된 헤더:
             { "accessToken": str }
-        :request: 노트 id를 포함한 query:
-            {
-                "noteId": int   # 노트 id
-            }
         :response: 상태, 결과메시지, 데이터가 담긴 json 객체:
             {
                 "state": str,                       # 상태
@@ -197,7 +193,6 @@ def create_note_endpoint(services):
                 }
             }
         """
-
         try:
             note_list = note_service.get_list_of_user_note(g.user_id)
         except Exception as e:
@@ -323,7 +318,6 @@ def create_note_endpoint(services):
         except Exception as e:
             deleted_note = NoteMessage.ERROR
         finally:
-            print(not deleted_note)
             if not deleted_note or deleted_note == NoteMessage.ERROR:
                 return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 

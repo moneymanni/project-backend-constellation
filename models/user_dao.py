@@ -139,10 +139,7 @@ class UserDao:
                 UPDATE users
                 SET profile = :profile
                 WHERE id = :user_id
-            """), {
-                'user_id': user['user_id'],
-                'profile': user['profile']
-            }).rowcount
+            """), user).rowcount
         except:
             return None
 

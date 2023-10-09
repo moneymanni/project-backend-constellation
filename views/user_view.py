@@ -32,7 +32,7 @@ def create_user_endpoint(services, config):
                 "message": str,         # 결과 메시지
                 "data": {               # 반환하는 데이터
                         userId: str     # 가입한 사용자 id
-                    }
+                }
             }
         """
         form = SignUpForm(meta={"csrf": False})
@@ -151,7 +151,7 @@ def create_user_endpoint(services, config):
                 return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
 
-        return jsonify(response_from_message(ResponseText.SUCCESS.value, UserMessage.UPDATE.value, {'updated_at': updated_user})), 200
+        return jsonify(response_from_message(ResponseText.SUCCESS.value, UserMessage.UPDATE.value, {'updatedAt': updated_user})), 200
 
 
     # delete
@@ -170,6 +170,7 @@ def create_user_endpoint(services, config):
                 "message": str,             # 결과 메시지
             }
         """
+
         try:
             deleted_user = user_service.delete_user(g.user_id)
         except:
