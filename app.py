@@ -24,6 +24,7 @@ def create_app(test_config = None):
     ## Presistence Layer
     user_dao = UserDao(database)
     note_dao = NoteDao(database)
+    page_dao = PageDao(database)
 
     ## Business Layer
     services = Services
@@ -31,12 +32,14 @@ def create_app(test_config = None):
     services.auth_service = AuthService(user_dao)
     services.user_service = UserService(user_dao)
     services.note_service = NoteService(note_dao)
+    services.page_service = PageService(page_dao)
 
     ## endpoint 생성
     create_endpoint(app, services)
     app.register_blueprint(create_auth_endpoint(services, app.config), url_prefix='/auth')
     app.register_blueprint(create_user_endpoint(services, app.config), url_prefix='/user')
     app.register_blueprint(create_note_endpoint(services), url_prefix='/note')
+    app.register_blueprint(create_page_endpoint(services), url_prefix='/page')
 
     return app
 
