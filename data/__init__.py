@@ -9,5 +9,6 @@ __all__ = [
     "AuthMessage",
     "UserMessage",
     "NoteMessage",
-    "PageMessage"
+    "PageMessage",
+    "LinkMessage"
 ]
