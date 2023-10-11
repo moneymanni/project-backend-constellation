@@ -9,7 +9,7 @@ class UserDao:
     def insert_user_info(self, user: dict) -> int:
         """사용자의 email, password, profile로 회원가입을 합니다.
         그리고 사용자 id를 반환합니다.
-        만약 에러가 발생하면 None을 반환합니다.
+        만약 사용자 정보가 없으면 -1을 반환하고, 에러가 발생하면 None을 반환합니다.
 
         :param user: 생성하고자 하는 사용자 정보를 담고 있는 딕셔너리:
             {
@@ -33,7 +33,7 @@ class UserDao:
         except:
             return None
 
-        return user_id if user_id else None
+        return user_id if user_id else -1
 
 
     # read

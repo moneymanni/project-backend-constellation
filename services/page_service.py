@@ -1,4 +1,8 @@
-from data import PageMessage
+from flask import request, Response, g
+from functools import wraps
+import json
+
+from data import response_from_message, ResponseText, PageMessage
 
 class PageService:
     def __init__(self, page_dao):
@@ -25,6 +29,32 @@ class PageService:
                 return PageMessage.FAIL_NOT_EXISTS
 
         return True if user_id == page_owner_id else False
+
+    # def confirm_auth(self, f):
+    #     def decorated_function(*args, **kwargs):
+    #         if request.method == 'GET':
+    #             page_id = request.args.get('pageId', type=int)
+    #         elif request.method == 'POST':
+    #             body = request.json
+    #             page_id = body['pageId']
+    #
+    #         if not page_id:
+    #             return Response(json.dumps(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_EXISTS.value)), status=400)
+    #
+    #         try:
+    #             page_owner_id = self.page_dao.find_page_owner_id_by_page_id(page_id)
+    #         except Exception as e:
+    #             return Response(json.dumps(response_from_message(ResponseText.FAIL.value, PageMessage.ERROR.value)), status=500)
+    #
+    #         if page_owner_id is None or page_owner_id == -1:
+    #             return Response(json.dumps(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_EXISTS.value)), status=400)
+    #
+    #         if g.user_id != page_owner_id:
+    #             return Response(json.dumps(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_PERMISSION.value)), status=401)
+    #
+    #         return f(*args, **kwargs)
+    #     return decorated_function
+
 
     def is_included_same_note(self, page_id: int, page_id_to_compare: int) -> bool:
         """두 개의 페이지가 같은 노트에 포함되어 있는지 검증합니다.
@@ -96,7 +126,7 @@ class PageService:
 
     def get_list_of_page(self, note_id: int) -> list:
         """노트 id로 노트 내 페이지 목록을 조회합니다.
-        만약 존재하지 않거나 에러가 발생하면 PageMessage를 반환합니다.
+        만약 에러가 발생하면 PageMessage를 반환합니다.
 
         :param note_id: 조회할 노트 id
         :return: 페이지 정보가 포함된 리스트:
@@ -115,7 +145,7 @@ class PageService:
         except Exception as e:
             return PageMessage.ERROR
 
-        return page_list if page_list else PageMessage.FAIL_NOT_EXISTS
+        return page_list if page_list is not None else PageMessage.ERROR
 
     def find_page_id_and_keyword(self, note_id: int) -> list:
         """노트 id로 페이지(id, 키워드) 목록을 조회합니다.
@@ -133,7 +163,7 @@ class PageService:
         except Exception as e:
             return PageMessage.ERROR
 
-        return page_list if page_list else PageMessage.FAIL_NOT_EXISTS
+        return page_list
 
 
     # update

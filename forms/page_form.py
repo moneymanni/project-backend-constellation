@@ -12,7 +12,7 @@ class PageHeaderUpdateForm(FlaskForm):
     pageId = IntegerField("pageId", validators=[DataRequired()])
 
 class PageContentUpdateForm(FlaskForm):
-    content = StringField("content", validators=[DataRequired()])
+    content = StringField("content", validators=[DataRequired(), Length(max=2000)])
     pageId = IntegerField("pageId", validators=[DataRequired()])
 
 class PageInfoDeleteForm(FlaskForm):

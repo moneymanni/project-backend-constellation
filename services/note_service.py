@@ -96,7 +96,7 @@ class NoteService:
 
     def get_list_of_user_note(self, user_id: int) -> list:
         """사용자 id로 사용자의 노트 목록을 조회합니다.
-        만약 노트 목록이 존재하지 않거나 에러가 발생하면 NoteMessage를 반환합니다.
+        만약 에러가 발생하면 NoteMessage를 반환합니다.
 
         :param user_id: 조회할 사용자 id
         :return: 노트 정보를 포함한 리스트:
@@ -115,7 +115,7 @@ class NoteService:
         except Exception as e:
             return NoteMessage.ERROR
 
-        return note_list if note_list else NoteMessage.FAIL_NOT_EXISTS
+        return note_list
     # update
     def update_note(self, note: dict) -> str:
         """노트의 제목, 설명, 공유 권한 받아 노트 정보를 수정합니다.

@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, g
+import json
 
 from forms import PageInfoCreateForm, PageHeaderUpdateForm, PageContentUpdateForm, PageInfoDeleteForm
 from data import response_from_message, ResponseText, NoteMessage, PageMessage
@@ -161,9 +162,9 @@ def create_page_endpoint(services):
                 }
             }
         """
-        form = PageHeaderUpdateForm(meta={"csrf": False})
-        if not form.validate():
-            return json.dumps(form.errors), 400
+        # form = PageHeaderUpdateForm(meta={"csrf": False})
+        # if not form.validate():
+        #     return json.dumps(form.errors), 400
 
         body = request.json
         page_header = {
@@ -215,9 +216,9 @@ def create_page_endpoint(services):
                 }
             }
         """
-        form = PageContentUpdateForm(meta={"csrf": False})
-        if not form.validate():
-            return json.dumps(form.errors), 400
+        # form = PageContentUpdateForm(meta={"csrf": False})
+        # if not form.validate():
+        #     return json.dumps(form.errors), 400
 
         body = request.json
         page_content = {

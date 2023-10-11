@@ -26,7 +26,7 @@ class JWTService:
                     payload = None
 
                 if payload is None:
-                    return Response(json.dumps(response_from_message(ResponseText.FAIL.value, JwtMessage.ERROR.value)), status=401)
+                    return Response(json.dumps(response_from_message(ResponseText.FAIL.value, JwtMessage.FAIL_NOT_INVALID.value)), status=401)
 
                 try:
                     if not self.user_dao.get_user_info(payload['user_id']):

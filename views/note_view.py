@@ -200,8 +200,6 @@ def create_note_endpoint(services):
         finally:
             if note_list == NoteMessage.ERROR:
                 return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            elif note_list == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.READ.value, {
             'noteList': [{
