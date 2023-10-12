@@ -48,11 +48,12 @@ def create_note_endpoint(services):
 
         try:
             new_note_id = note_service.create_new_note(new_note)
+
+            if isinstance(new_note_id, NoteMessage):
+                message = response_from_message(ResponseText.FAIL.value, new_note_id.value)
+                return jsonify(message), 500
         except:
-            new_note_id = NoteMessage.ERROR
-        finally:
-            if new_note_id is None or new_note_id == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
+            return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.CREATE.value, {'noteId': new_note_id})), 201
 
@@ -60,6 +61,7 @@ def create_note_endpoint(services):
     # read
     @note_view.route('', methods=['GET'])
     @jwt_service.login_required
+    @note_service.confirm_auth
     def note():
         """노트 정보 조회 엔드포인트
 
@@ -87,26 +89,15 @@ def create_note_endpoint(services):
         note_id = request.args.get('noteId')
 
         try:
-            user_is_note_owner = note_service.confirm_auth(g.user_id, note_id)
-        except Exception as e:
-            user_is_note_owner = NoteMessage.ERROR
-        finally:
-            if user_is_note_owner == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            elif not user_is_note_owner and user_is_note_owner is not None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_PERMISSION.value)), 401
-            elif user_is_note_owner == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
-
-        try:
             note = note_service.get_user_chosen_note(note_id)
+
+            if isinstance(note, NoteMessage):
+                message = response_from_message(ResponseText.FAIL.value, note.value)
+                if note == NoteMessage.FAIL_NOT_EXISTS:
+                    return jsonify(message), 400
+                return jsonify(message), 500
         except Exception as e:
-            note = NoteMessage.ERROR
-        finally:
-            if note == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            elif note == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
+            return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.READ.value, {
             'noteId': note['note_id'],
@@ -119,6 +110,7 @@ def create_note_endpoint(services):
         })), 200
 
     @note_view.route('/read', methods=['GET'])
+    @note_service.confirm_note_permission
     def note_read():
         """노트 정보 조회 엔드포인트 (모든 사용자가)
 
@@ -138,26 +130,15 @@ def create_note_endpoint(services):
         note_id = request.args.get('noteId')
 
         try:
-            note_is_release = note_service.confirm_note_permission(note_id)
-        except Exception as e:
-            note_is_release = NoteMessage.ERROR
-        finally:
-            if note_is_release == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            elif not note_is_release and note_is_release is not None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_PERMISSION.value)), 401
-            elif note_is_release == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
-
-        try:
             note = note_service.get_user_chosen_note(note_id)
+
+            if isinstance(note, NoteMessage):
+                message = response_from_message(ResponseText.FAIL.value, note.value)
+                if note == NoteMessage.FAIL_NOT_EXISTS:
+                    return jsonify(message), 400
+                return jsonify(message), 500
         except Exception as e:
-            note = NoteMessage.ERROR
-        finally:
-            if note == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            elif note == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
+            return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.READ.value, {
             'noteId': note['note_id'],
@@ -195,11 +176,12 @@ def create_note_endpoint(services):
         """
         try:
             note_list = note_service.get_list_of_user_note(g.user_id)
+
+            if isinstance(note_list, NoteMessage):
+                message = response_from_message(ResponseText.FAIL.value, note_list.value)
+                return jsonify(message), 500
         except Exception as e:
-            note_list = NoteMessage.ERROR
-        finally:
-            if note_list == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
+            return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.READ.value, {
             'noteList': [{
@@ -217,6 +199,7 @@ def create_note_endpoint(services):
     # update
     @note_view.route('/update', methods=['POST'])
     @jwt_service.login_required
+    @note_service.confirm_auth
     def note_update():
         """노트 수정 엔드포인트
 
@@ -251,25 +234,13 @@ def create_note_endpoint(services):
         }
 
         try:
-            user_is_note_owner = note_service.confirm_auth(g.user_id, note['note_id'])
-        except Exception as e:
-            user_is_note_owner = NoteMessage.ERROR
-        finally:
-            if user_is_note_owner == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            elif not user_is_note_owner and user_is_note_owner is not None:
-                return jsonify(
-                    response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_PERMISSION.value)), 401
-            elif user_is_note_owner == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
-
-        try:
             updated_note = note_service.update_note(note)
+
+            if isinstance(updated_note, NoteMessage):
+                message = response_from_message(ResponseText.FAIL.value, updated_note.value)
+                return jsonify(message), 500
         except Exception as e:
-            updated_note = NoteMessage.ERROR
-        finally:
-            if updated_note == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
+            return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.UPDATE.value, {'updatedAt': updated_note})), 200
 
@@ -277,6 +248,7 @@ def create_note_endpoint(services):
     # delete
     @note_view.route('/delete', methods=['POST'])
     @jwt_service.login_required
+    @note_service.confirm_auth
     def note_delete():
         """노트 삭제 엔드포인트
 
@@ -300,24 +272,13 @@ def create_note_endpoint(services):
         note_id = body['noteId']
 
         try:
-            user_is_note_owner = note_service.confirm_auth(g.user_id, note_id)
-        except Exception as e:
-            user_is_note_owner = NoteMessage.ERROR
-        finally:
-            if user_is_note_owner == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
-            if not user_is_note_owner and user_is_note_owner is not None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_PERMISSION.value)), 401
-            elif user_is_note_owner == NoteMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.FAIL_NOT_EXISTS.value)), 400
-
-        try:
             deleted_note = note_service.delete_note(note_id)
+
+            if isinstance(deleted_note, NoteMessage):
+                message = response_from_message(ResponseText.FAIL.value, deleted_note.value)
+                return jsonify(message), 500
         except Exception as e:
-            deleted_note = NoteMessage.ERROR
-        finally:
-            if not deleted_note or deleted_note == NoteMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
+            return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, NoteMessage.DELETE.value)), 200
 

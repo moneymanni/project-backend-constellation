@@ -1,15 +1,16 @@
 from sqlalchemy import text
+from typing import Optional
 
 class NoteDao:
     def __init__(self, database):
         self.db = database
 
-
     # create
     def insert_note_info(self, note: dict) -> int:
         """사용자 id와 노트의 제목, 설명, 접근 권한으로 노트를 생성합니다.
         그리고 노트 id를 반환합니다.
-        만약 에러가 발생하면 None을 반환합니다.
+        만약 노트 정보 추가에 실패하면 -1을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param note: 생성할 노트 정보를 포함한 딕셔너리:
             {
@@ -33,19 +34,25 @@ class NoteDao:
                     :user_id,
                     :shared_permission
                 )
-            """), note).lastrowid
+            """), {
+                'title': note['title'],
+                'description': note['description'],
+                'user_id': note['user_id'],
+                'shared_permission': note['shared_permission']
+            }).lastrowid
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return note_id if note_id else None
+        return note_id if note_id else -1
 
 
     # read
-    def get_note_info(self, note_id: int) -> dict:
+    def get_note_info(self, note_id: int) -> Optional[dict]:
         """노트 id로 노트 정보를 조회합니다.
-        만약 노트 정보가 존재하지 않거나 에러가 발생하면 None을 반환합니다.
+        만약 노트 정보가 존재하지 않으면 None을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
-        :param note_id: 조회하려는 노트 id
+        :param note_id: 조회할 노트 id
         :return: 노트 정보가 포함된 딕셔너리:
             {
                 'note_id': int,             # 노트 id
@@ -73,7 +80,7 @@ class NoteDao:
                 'note_id': note_id
             }).fetchone()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return {
             'note_id': note['id'],
@@ -86,8 +93,9 @@ class NoteDao:
         } if note else None
 
     def get_note_list(self, user_id: int) -> list:
-        """사용자 id로 사용자의 모든 노트 정보를 조회한다.
-        만약 에러가 발생하면 None을 반환한다.
+        """사용자 id로 사용자의 모든 노트 정보를 조회합니다.
+        만약 노트 정보가 존재하지 않으면 빈 리스트를 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param user_id: 조회할 사용자 id
         :return: 모든 노트 정보가 포함된 리스트:
@@ -117,7 +125,7 @@ class NoteDao:
                 'user_id': user_id
             }).fetchall()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return [{
             'note_id': note['id'],
@@ -130,8 +138,9 @@ class NoteDao:
         } for note in note_list]
 
     def find_user_id_by_note_id(self, note_id: int) -> int:
-        """노트 id로 해당 노트의 소유주(사용자) id를 찾습니다.
-        만약 존재하지 않으면 -1을 반환하고, 에러가 발생하면 None을 반환합니다.
+        """노트 id로 해당 노트의 소유주(사용자) id를 조회합니다.
+        만약 사용자가 존재하지 않으면 -1을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param note_id: 조회할 노트 id
         :return: 사용자 id
@@ -146,13 +155,14 @@ class NoteDao:
                 'note_id': note_id
             }).fetchone()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return row['user_id'] if row else -1
 
     def find_shared_permission_by_note_id(self, note_id: int) -> int:
         """노트 id로 해당 노트의 공유 권한을 조회합니다.
-        만약 노트가 존재하지 않으면 -1을 반환하고, 에러가 발생하면 None을 반환합니다.
+        만약 노트가 존재하지 않으면 -1을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param note_id: 조회할 노트 id
         :return: 해당 노트의 공유 권한
@@ -167,7 +177,7 @@ class NoteDao:
                 'note_id': note_id
             }).fetchone()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return row['shared_permission'] if row else -1
 
@@ -176,7 +186,7 @@ class NoteDao:
     def update_note_info(self, note: dict) -> bool:
         """ 노트의 제목, 설명, 공유 권한을 수정합니다.
         그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        만약 에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param note: 수정할 노트 정보를 포함한 딕셔너리:
             {
@@ -197,15 +207,16 @@ class NoteDao:
                 WHERE id = :note_id
             """), note).rowcount
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return True if updated_rowcnt is not None and updated_rowcnt > 0 else False
+        return updated_rowcnt and updated_rowcnt > 0
 
 
     # delete
     def delete_note_info(self, note_id: int) -> bool:
-        """노트 정보를 삭제합니다. 그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        """노트 정보를 삭제합니다.
+        그리고 성공 여부(True/False)를 반환합니다.
+        만약 에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param note_id: 삭제할 노트 id
         :return: 삭제 성공 여부 (True/False)
@@ -218,6 +229,6 @@ class NoteDao:
                 'note_id': note_id
             }).rowcount
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return True if deleted_rowcnt is not None and deleted_rowcnt > 0 else False
+        return deleted_rowcnt and deleted_rowcnt > 0
