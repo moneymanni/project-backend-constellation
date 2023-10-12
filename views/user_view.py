@@ -1,17 +1,14 @@
 from flask import Blueprint, request, jsonify, g
 import json
 
-from data import response_from_message, ResponseText, UserMessage, JwtMessage
+from data import response_from_message, ResponseText, UserMessage
 from forms import SignUpForm, UserInfoUpdateForm
 
 def create_user_endpoint(services, config):
     user_view = Blueprint('user_view', __name__)
 
-
-    # service
     user_service = services.user_service
     jwt_service = services.jwt_service
-
 
     # create
     @user_view.route('/sign-up', methods=['POST'])
@@ -48,19 +45,17 @@ def create_user_endpoint(services, config):
 
         try:
             new_user_id = user_service.create_new_user(new_user)
-        except:
-            new_user_id = None
-        finally:
-            if new_user_id is None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
-            elif new_user_id == -1:
-                return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.FAIL_EMAIL_ALREADY_EXISTS.value)), 400
 
-        try:
+            if isinstance(new_user_id, UserMessage):
+                message = response_from_message(ResponseText.FAIL.value, new_user_id.value)
+                if new_user_id == UserMessage.FAIL_EMAIL_ALREADY_EXISTS:
+                    return jsonify(message), 400
+                return jsonify(message), 500
+
             access_token = jwt_service.generate_access_token(new_user_id)
             access_token_exp = config['JWT_EXP_DELTA_SECONDS']
-        except:
-            return jsonify(response_from_message(ResponseText.FAIL.value, JwtMessage.ERROR.value)), 500
+        except Exception as e:
+            return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
         user = response_from_message(ResponseText.SUCCESS.value, UserMessage.CREATE.value, {'userId': new_user_id})
         user['accessToken'], user['tokenExpiration'] = access_token, access_token_exp
@@ -93,12 +88,14 @@ def create_user_endpoint(services, config):
         """
         try:
             user = user_service.get_user(g.user_id)
-        except:
-            user = None
-        finally:
-            if user is None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
+            if isinstance(user, UserMessage):
+                message = response_from_message(ResponseText.FAIL.value, user.value)
+                if user == UserMessage.FAIL_NOT_USER:
+                    return jsonify(message), 400
+                return jsonify(message), 500
+        except Exception as e:
+            return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, UserMessage.READ.value, {
             'userId': user['user_id'],
@@ -144,12 +141,12 @@ def create_user_endpoint(services, config):
 
         try:
             updated_user = user_service.update_user(user)
-        except:
-            updated_user = None
-        finally:
-            if updated_user is None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
+            if isinstance(updated_user, UserMessage):
+                message = response_from_message(ResponseText.FAIL.value, updated_user.value)
+                return jsonify(message), 500
+        except Exception as e:
+            return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, UserMessage.UPDATE.value, {'updatedAt': updated_user})), 200
 
@@ -173,11 +170,14 @@ def create_user_endpoint(services, config):
 
         try:
             deleted_user = user_service.delete_user(g.user_id)
-        except:
-            deleted_user = None
-        finally:
-            if deleted_user is None or not deleted_user:
+
+            if isinstance(deleted_user, UserMessage):
+                message = response_from_message(ResponseText.FAIL.value, deleted_user.value)
+                return jsonify(message), 500
+            elif not deleted_user:
                 return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
+        except Exception as e:
+            return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, UserMessage.DELETE.value)), 200
 

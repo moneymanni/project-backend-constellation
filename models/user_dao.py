@@ -1,15 +1,15 @@
 from sqlalchemy import text
+from typing import Optional
 
 class UserDao:
     def __init__(self, database):
         self.db = database
 
-
     # create
     def insert_user_info(self, user: dict) -> int:
         """사용자의 email, password, profile로 회원가입을 합니다.
         그리고 사용자 id를 반환합니다.
-        만약 사용자 정보가 없으면 -1을 반환하고, 에러가 발생하면 None을 반환합니다.
+        만약 사용자 정보가 추가에 실패하면 -1을 반환하고, 에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param user: 생성하고자 하는 사용자 정보를 담고 있는 딕셔너리:
             {
@@ -29,19 +29,24 @@ class UserDao:
                     :email,
                     :profile,
                     :password
-            )"""), user).lastrowid
-        except:
-            return None
+            )"""), {
+                'email': user['email'],
+                'password': user['password'],
+                'profile': user['profile']
+            }).lastrowid
+        except Exception as e:
+            raise RuntimeError("Database Error") from e
 
         return user_id if user_id else -1
 
 
     # read
-    def get_user_info(self, user_id: int) -> dict:
+    def get_user_info(self, user_id: int) -> Optional[dict]:
         """ 사용자 id로 password를 제외한 사용자의 정보를 조회합니다.
-        만약 사용자 정보가 존재하지 않거나 에러가 발생하면 None을 반환합니다.
+        만약 사용자 정보가 존재하지 않으면 None을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
-        :param user_id: 조회하려는 사용자 id
+        :param user_id: 조회할 사용자 id
         :return: 사용자 정보가 포함된 딕셔너리:
             {
                 'user_id': int,     # 사용자 id
@@ -64,8 +69,8 @@ class UserDao:
             """), {
                 'user_id': user_id
             }).fetchone()
-        except:
-            user = None
+        except Exception as e:
+            raise RuntimeError("Database Error") from e
 
         return {
             'user_id': user['id'],
@@ -76,8 +81,9 @@ class UserDao:
         } if user else None
 
     def find_user_id_by_email(self, email: str) -> int:
-        """ 사용자의 email로 사용자 id를 찾습니다.
-        만약 사용자 id가 존재하지 않으면 -1을 반환하고, 에러가 발생하면 None을 반환합니다.
+        """ 사용자의 email로 사용자 id를 조회합니다.
+        만약 사용자 id가 존재하지 않으면 -1을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외를 발생시킵니다.
 
         :param email: 사용자의 이메일
         :return: 사용자의 id
@@ -89,17 +95,18 @@ class UserDao:
                 FROM users
                 WHERE email = :email
             """), {'email' : email}).fetchone()
-        except:
-            return None
+        except Exception as e:
+            raise RuntimeError("Database Error") from e
 
         return row['id'] if row else -1
 
-    def find_user_id_and_password_by_email(self, email: str) -> dict:
-        """ 사용자의 이메일로 사용자 id와 비밀번호를 찾습니다.
-        만약 사용자 정보가 존재하지 않거나 에러가 발생하면 None을 반환합니다.
+    def find_user_id_and_password_by_email(self, email: str) -> Optional[dict]:
+        """ 사용자의 이메일로 사용자 id와 비밀번호를 조회합니다.
+        만약 사용자 정보가 존재하지 않으면 None을 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
         
-        :param email: 사용자의 이메일
-        :return: 사용자의 id와 비밀번호: 
+        :param email: 조회할 사용자의 이메일
+        :return: 사용자의 id와 비밀번호을 포함한 딕셔너리:
             {
                 'user_id': int,         # 사용자 id
                 'hashed_password': str  # 사용자의 암호화된 비밀번호
@@ -112,9 +119,11 @@ class UserDao:
                     hashed_password
                 FROM users
                 WHERE email = :email
-            """), {'email' : email}).fetchone()
-        except:
-            row = None
+            """), {
+                'email' : email
+            }).fetchone()
+        except Exception as e:
+            raise RuntimeError("Database Error") from e
 
         return {
             'user_id': row['id'],
@@ -125,7 +134,7 @@ class UserDao:
     # update
     def update_user_info(self, user: dict) -> bool:
         """ 사용자의 프로필을 수정합니다. 그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        만약 에러가 발생했다면 'RuntimeError' 예외가 발생합니다.
         
         :param user: 수정할 사용자의 정보: 
             {
@@ -139,17 +148,20 @@ class UserDao:
                 UPDATE users
                 SET profile = :profile
                 WHERE id = :user_id
-            """), user).rowcount
-        except:
-            return None
+            """), {
+                'profile': user['profile'],
+                'user_id': user['user_id']
+            }).rowcount
+        except Exception as e:
+            raise RuntimeError("Database Error") from e
 
-        return True if updated_rowcnt is not None and updated_rowcnt > 0 else False
+        return updated_rowcnt and updated_rowcnt > 0
 
 
     # delete
     def delete_user_info(self, user_id: int) -> bool:
         """사용자 정보를 삭제합니다. 그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        만약 에러가 발생했다면 'RuntimeError' 예외가 발생합니다.
 
         :param user_id: 삭제할 사용자 id
         :return: 삭제 성공 여부 (True, False)
@@ -161,7 +173,7 @@ class UserDao:
             """), {
                 'user_id': user_id
             }).rowcount
-        except:
-            return None
+        except Exception as e:
+            raise RuntimeError("Database Error") from e
 
-        return True if deleted_rowcnt is not None and deleted_rowcnt > 0 else False
+        return deleted_rowcnt and deleted_rowcnt > 0
