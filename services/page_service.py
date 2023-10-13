@@ -35,29 +35,29 @@ class PageService:
             return f(*args, **kwargs)
         return decorated_function
 
-    def is_included_same_note(self, page_id: int, page_id_to_compare: int) -> Union[bool, PageMessage]:
-        """두 개의 페이지가 같은 노트에 포함되어 있는지 검증합니다.
-        만약 에러가 발생하면 PageMessage를 반환합니다.
-
-        :param page_id: 페이지 id
-        :param page_id_to_compare: 검증할 페이지 id
-        :return: 같은 노트에 포함되어 있는지 (True/False)
-        """
-        try:
-            note_id = self.page_dao.find_note_id_by_page_id(page_id)
-            note_id_to_compare = self.page_dao.find_note_id_by_page_id(page_id_to_compare)
-        except Exception as e:
-            return PageMessage.ERROR
-        finally:
-            if note_id is None or note_id_to_compare is None:
-                return PageMessage.ERROR
-            elif note_id == -1 or note_id_to_compare == -1:
-                return PageMessage.FAIL_NOT_EXISTS
-
-        return True if note_id == note_id_to_compare else False
+    # def is_included_same_note(self, page_id: int, page_id_to_compare: int) -> Union[bool, PageMessage]:
+    #     """두 개의 페이지가 같은 노트에 포함되어 있는지 검증합니다.
+    #     만약 에러가 발생하면 PageMessage를 반환합니다.
+    #
+    #     :param page_id: 페이지 id
+    #     :param page_id_to_compare: 검증할 페이지 id
+    #     :return: 같은 노트에 포함되어 있는지 (True/False)
+    #     """
+    #     try:
+    #         note_id = self.page_dao.find_note_id_by_page_id(page_id)
+    #         note_id_to_compare = self.page_dao.find_note_id_by_page_id(page_id_to_compare)
+    #     except Exception as e:
+    #         return PageMessage.ERROR
+    #     finally:
+    #         if note_id is None or note_id_to_compare is None:
+    #             return PageMessage.ERROR
+    #         elif note_id == -1 or note_id_to_compare == -1:
+    #             return PageMessage.FAIL_NOT_EXISTS
+    #
+    #     return True if note_id == note_id_to_compare else False
 
     # 두 개의 페이지가 같은 노트에 포함되어 있는지 확인하는 데코레이터
-    def is_included_same_note_temp(self, f):
+    def is_included_same_note(self, f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if request.method == 'GET':
