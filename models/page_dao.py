@@ -1,17 +1,18 @@
 from sqlalchemy import text
+from typing import Optional
 
 class PageDao:
     def __init__(self, database):
         self.db = database
 
-
     # create
     def insert_page_info(self, page: dict) -> int:
         """ 페이지의 정보를 받아 페이지를 생성합니다.
         그리고 페이지 id를 반환합니다.
-        만약 에러가 발생하면 None을 반환합니다.
+        만약 노트 정보 추가에 실패하면 -1을 반환하고,
+        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
-        :param page: 페이지 정보를 포함한 딕셔너리:
+        :param page: 생성할 페이지 정보를 포함한 딕셔너리:
             {
                 'title': str,   # 페이지 제목
                 'keyword': str, # 페이지 키워드
@@ -33,17 +34,23 @@ class PageDao:
                     :content,
                     :note_id
                 )
-            """), page).lastrowid
+            """), {
+                'title': page['title'],
+                'keyword': page['keyword'],
+                'content': page['content'],
+                'note_id': page['note_id']
+            }).lastrowid
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return note_id if note_id else None
+        return note_id if note_id else -1
 
 
     # read
-    def get_page_info(self, page_id: int) -> dict:
+    def get_page_info(self, page_id: int) -> Optional[dict]:
         """페이지 id로 페이지 정보를 조회합니다.
-        만약 페이지 정보가 존재하지 않거나 에러가 발생하면 None을 반환합니다.
+        만약 페이지 정보가 존재하지 않으면 None을 반환하고,
+        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 페이지 정보가 포함된 딕셔너리:
@@ -73,7 +80,7 @@ class PageDao:
                 'page_id': page_id
             }).fetchone()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return {
             'page_id': page['id'],
@@ -86,8 +93,9 @@ class PageDao:
         } if page else None
 
     def get_page_list(self, note_id: int) -> list:
-        """노트 id로 노트의 모든 페이지 정보를 조회한다.
-        만약 에러가 발생하면 None을 반환한다.
+        """노트 id로 노트의 모든 페이지 정보를 조회합니다.
+        만약 페이지 정보가 존재하지 않으면 빈 리스트를 반환하고,
+        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param note_id: 조회할 노트 id
         :return: 모든 페이지 정보가 포함된 리스트:
@@ -117,7 +125,7 @@ class PageDao:
                 'note_id': note_id
             }).fetchall()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return [{
             'page_id': page['id'],
@@ -130,8 +138,9 @@ class PageDao:
         } for page in page_list]
 
     def find_note_id_by_page_id(self, page_id: int) -> int:
-        """페이지 id로 노트 id를 찾습니다.
-        만약 존재하지 않으면 -1을 반환하고, 에러가 발생하면 None을 반환합니다.
+        """페이지 id로 노트 id를 조회합니다.
+        만약 페이지 정보가 존재하지 않으면 -1을 반환하고,
+        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 노트 id
@@ -146,13 +155,14 @@ class PageDao:
                 'page_id': page_id
             }).fetchone()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return row['note_id'] if row else -1
 
     def find_page_owner_id_by_page_id(self, page_id: int) -> int:
-        """페이지 id로 노트의 소유주(사용자) id를 찾습니다.
-        만약 존재하지 않으면 -1을 반환하고, 에러가 발생하면 None을 반환한다.
+        """페이지 id로 노트의 소유주(사용자) id를 조회합니다.
+        만약 페이지 정보가 존재하지 않으면 -1을 반환하고,
+        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 사용자 id
@@ -161,18 +171,20 @@ class PageDao:
             row = self.db.execute(text("""
                 SELECT
                     notes.user_id
-                FROM pages INNER JOIN notes
-                ON pages.note_id = notes.id
+                FROM pages
+                INNER JOIN notes ON pages.note_id = notes.id
                 WHERE pages.id = :page_id
-            """), {'page_id': page_id}).fetchone()
+            """), {
+                'page_id': page_id
+            }).fetchone()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return row['user_id'] if row else -1
 
     def find_page_id_and_keyword_by_note_id(self, note_id: int) -> list:
-        """노트 id로 노트 안에 있는 모든 페이지 id와 키워드를 찾습니다.
-        만약 에러가 발생하면 None을 반환합니다.
+        """노트 id로 노트 안에 있는 모든 페이지 id와 키워드를 조회합니다.
+        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
         
         :param note_id: 조회할 노트 id
         :return: 페이지 id와 키워드를 포함한 리스트: 
@@ -188,9 +200,11 @@ class PageDao:
                     keyword
                 FROM pages
                 WHERE note_id = :note_id
-            """), {'note_id': note_id}).fetchall()
+            """), {
+                'note_id': note_id
+            }).fetchall()
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
         return [{
             'page_id': page['id'],
@@ -202,7 +216,7 @@ class PageDao:
     def update_page_header(self, page: dict) -> bool:
         """ 페이지 제목, 키워드를 수정합니다.
         그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        만약 에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param page: 수정할 페이지 정보를 포함한 딕셔너리:
             {
@@ -219,16 +233,20 @@ class PageDao:
                     title = :title,
                     keyword = :keyword
                 WHERE id = :page_id
-            """), page).rowcount
+            """), {
+                'title': page['title'],
+                'keyword': page['keyword'],
+                'page_id': page['page_id']
+            }).rowcount
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return True if updated_rowcnt is not None and updated_rowcnt > 0 else False
+        return updated_rowcnt and updated_rowcnt > 0
 
     def update_page_content(self, page: dict) -> bool:
         """페이지 내용을 수정합니다.
         그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        만약 에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param page: 수정할 페이지 정보를 포함한 딕셔너리:
             {
@@ -242,17 +260,21 @@ class PageDao:
                 UPDATE pages
                 SET content = :content
                 WHERE id = :page_id
-            """), page).rowcount
+            """), {
+                'content': page['content'],
+                'page_id': page['page_id']
+            }).rowcount
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return True if updated_rowcnt is not None and updated_rowcnt > 0 else False
+        return updated_rowcnt and updated_rowcnt > 0
 
 
     # delete
     def delete_page_info(self, page_id) -> bool:
-        """페이지 정보를 삭제합니다. 그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생했다면 None을 반환합니다.
+        """페이지 정보를 삭제합니다.
+        그리고 성공 여부(True/False)를 반환합니다.
+        만약 에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
 
         :param page_id: 삭제할 페이지 id
         :return: 삭제 성공 여부 (True/False)
@@ -265,6 +287,6 @@ class PageDao:
                 'page_id': page_id
             }).rowcount
         except Exception as e:
-            return None
+            raise RuntimeError("Database Error") from e
 
-        return True if deleted_rowcnt is not None and deleted_rowcnt > 0 else False
+        return deleted_rowcnt and deleted_rowcnt > 0
