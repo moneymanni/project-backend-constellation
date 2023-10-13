@@ -4,6 +4,7 @@ config.py
 Scripts/
 Lib/
 pyvenv.cfg
+description.md
 
 
 # Python
