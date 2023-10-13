@@ -10,7 +10,6 @@ def create_note_endpoint(services):
     jwt_service = services.jwt_service
     note_service = services.note_service
 
-
     # create
     @note_view.route('/create', methods=['POST'])
     @jwt_service.login_required

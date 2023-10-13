@@ -111,7 +111,7 @@ class NoteService:
 
         return note if note else NoteMessage.FAIL_NOT_EXISTS
 
-    def get_list_of_user_note(self, user_id: int) -> Union[list, NoteMessage]:
+    def get_list_of_user_note(self, user_id: int) -> Union[list[dict], NoteMessage]:
         """사용자 id로 사용자의 노트 목록을 조회합니다.
         만약 에러가 발생하면 NoteMessage를 반환합니다.
 
