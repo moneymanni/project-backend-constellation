@@ -174,7 +174,7 @@ def create_user_endpoint(services, config):
             if isinstance(deleted_user, UserMessage):
                 message = response_from_message(ResponseText.FAIL.value, deleted_user.value)
                 return jsonify(message), 500
-            elif not deleted_user:
+            if not deleted_user:
                 return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
         except Exception as e:
             return jsonify(response_from_message(ResponseText.FAIL.value, UserMessage.ERROR.value)), 500
