@@ -276,6 +276,8 @@ def create_note_endpoint(services):
             if isinstance(deleted_note, NoteMessage):
                 message = response_from_message(ResponseText.FAIL.value, deleted_note.value)
                 return jsonify(message), 500
+            if not deleted_note:
+                return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
         except Exception as e:
             return jsonify(response_from_message(ResponseText.FAIL.value, NoteMessage.ERROR.value)), 500
 
