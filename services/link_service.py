@@ -1,14 +1,15 @@
-from data import LinkMessage
 from typing import Union
+
+from data import LinkMessage
 
 class LinkService:
     def __init__(self, link_dao):
         self.link_dao = link_dao
 
-
     # create
     def create_new_link(self, new_link: dict) -> Union[bool, LinkMessage]:
         """페이지간 연결을 새로 생성합니다.
+        그리고 생성 성공 여부(True/False)를 반환합니다.
         만약 에러가 발생하면 LinkMessage를 반환합니다.
 
         :param new_link: 연결 정보를 포함한 딕셔너리:
@@ -17,16 +18,15 @@ class LinkService:
                 'linked_page_id': int   # 연결할 페이지 id
                 'linkage': double       # 페이지 간 연결 강도
             }
-        :return: 생성 성공 여부 (True/False) 또는 LinkMessage
+        :return: 생성 성공 여부 (True/False)
         """
-        # 이미 링크 정보가 있는지 확인
         try:
             link = self.link_dao.get_link_info(new_link)
+
             if link:
                 return LinkMessage.FAIL_IS_EXISTS
 
             is_created = self.link_dao.insert_link_info(new_link)
-
         except Exception as e:
             return LinkMessage.ERROR
 
@@ -93,4 +93,4 @@ class LinkService:
         except Exception as e:
             return LinkMessage.ERROR
 
-        return is_deleted if is_deleted is not None else LinkMessage.ERROR
+        return is_deleted

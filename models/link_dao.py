@@ -1,10 +1,9 @@
 from sqlalchemy import text
-from typing import Union, Optional
+from typing import Optional
 
 class LinkDao:
     def __init__(self, database):
         self.db = database
-
 
     # create
     def insert_link_info(self, link: dict) -> bool:
@@ -82,7 +81,8 @@ class LinkDao:
     def find_link_list_by_page_id(self, page_id: int) -> list:
         """페이지 id로 연결 정보를 조회합니다.
         그리고 페이지 id와 연결된 연결 리스트가 반환됩니다.
-        만약 에러가 발생하면 'RuntimeError' 예외가 발생합니다.
+        만약 연결 정보가 없으면 빈 리스트를 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 모든 연결 정보가 포함된 리스트:
@@ -119,7 +119,8 @@ class LinkDao:
     def find_link_list_by_note_id(self, note_id: int) -> list:
         """노트 id로 연결 정보를 조회합니다.
         그리고 해당 노트 내의 연결 리스트가 반환됩니다.
-        만약 에러가 발생하면 'RuntimeError' 예외가 발생합니다.
+        만약 연결 정보가 없으면 빈 리스트를 반환하고,
+        에러가 발생하면 'RuntimeError' 예외가 발생합니다.
 
         :param note_id: 조회할 노트 id
         :return: 모든 연결 정보가 포함된 리스트:

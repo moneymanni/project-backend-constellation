@@ -7,12 +7,14 @@ def create_link_endpoint(services):
     link_view = Blueprint('link_view', __name__)
 
     jwt_service = services.jwt_service
+    note_service = services.note_service
     page_service = services.page_service
     link_service = services.link_service
 
     # create
     @link_view.route('/create', methods=['POST'])
     @jwt_service.login_required
+    @page_service.confirm_auth
     def link_create():
         """페이지 간 연결 생성 엔드포인트
 
@@ -41,20 +43,7 @@ def create_link_endpoint(services):
             'linkage': body['linkage']
         }
 
-        # try:
-        #     user_is_page_owner = page_service.confirm_auth(g.user_id, new_link['page_id'])
-        # except Exception as e:
-        #     user_is_page_owner = PageMessage.ERROR
-        # finally:
-        #     if user_is_page_owner == PageMessage.ERROR:
-        #         return jsonify(response_from_message(ResponseText.FAIL.value, PageMessage.ERROR.value)), 500
-        #     elif not user_is_page_owner and user_is_page_owner is not None:
-        #         return jsonify(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_PERMISSION.value)), 401
-        #     elif user_is_page_owner == PageMessage.FAIL_NOT_EXISTS:
-        #         return jsonify(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_EXISTS.value)), 400
-
         try:
-            print(1)
             is_created = link_service.create_new_link(new_link)
 
             if isinstance(is_created, LinkMessage):
@@ -63,6 +52,8 @@ def create_link_endpoint(services):
                     return jsonify(message), 400
                 elif is_created == LinkMessage.ERROR:
                     return jsonify(message), 500
+            if not is_created:
+                return jsonify(response_from_message(ResponseText.FAIL.value, LinkMessage.ERROR.value)), 500
         except Exception as e:
             return jsonify(response_from_message(ResponseText.FAIL.value, LinkMessage.ERROR.value)), 500
 
@@ -71,10 +62,16 @@ def create_link_endpoint(services):
 
     # read
     @link_view.route('/list-on-page', methods=['GET'])
+    @jwt_service.login_required
+    @page_service.confirm_auth
     def link_list_on_page():
         """페이지와 연결된 연결 리스트 조회 엔드포인트
 
-        :request: 노트 id를 포함한 query:
+        :request access token이 담긴 헤더:
+            {
+                "accessToken": str      # 사용자의 access 토큰
+            }
+        :request: 페이지 id를 포함한 query:
             {
                 "pageId": int   # 페이지 id
             }
@@ -99,8 +96,7 @@ def create_link_endpoint(services):
 
             if isinstance(link_list, LinkMessage):
                 message = response_from_message(ResponseText.FAIL.value, link_list.value)
-                if link_list == LinkMessage.ERROR:
-                    return jsonify(message), 500
+                return jsonify(message), 500
         except Exception as e:
             return jsonify(response_from_message(ResponseText.FAIL.value, LinkMessage.ERROR.value)), 500
 
@@ -114,9 +110,15 @@ def create_link_endpoint(services):
         }))
 
     @link_view.route('/list-in-note', methods=['GET'])
+    @jwt_service.login_required
+    @note_service.confirm_auth
     def link_list_in_note():
         """노트 내 연결 리스트 조회 엔드포인트
 
+        :request access token이 담긴 헤더:
+            {
+                "accessToken": str      # 사용자의 access 토큰
+            }
         :request: 노트 id를 포함한 query:
             {
                 "noteId": int   # 노트 id
@@ -142,8 +144,7 @@ def create_link_endpoint(services):
 
             if isinstance(link_list, LinkMessage):
                 message = response_from_message(ResponseText.FAIL.value, link_list.value)
-                if link_list == LinkMessage.ERROR:
-                    return jsonify(message), 500
+                return jsonify(message), 500
         except Exception as e:
             return jsonify(response_from_message(ResponseText.FAIL.value, LinkMessage.ERROR.value)), 500
 
@@ -160,10 +161,25 @@ def create_link_endpoint(services):
     # delete
     @link_view.route('/delete', methods=['POST'])
     @jwt_service.login_required
+    @page_service.confirm_auth
+    @page_service.is_included_same_note
     def link_delete():
-        """
+        """연결 정보 삭제 엔드포인트
 
-        :return:
+        :request access token이 담긴 헤더:
+            {
+                "accessToken": str      # 사용자의 access 토큰
+            }
+        :request: 두 페이지 id를 포함한 query:
+            {
+                "pageId": int,          # 페이지 id
+                "linkedPageId": int,    # 연결된 페이지 id
+            }
+        :response 상태, 결과메시지, 데이터가 담긴 json 객체:
+            {
+                "state": str,               # 상태
+                "message": str,             # 결과 메시지
+            }
         """
         body = request.json
         link = {
@@ -172,23 +188,13 @@ def create_link_endpoint(services):
         }
 
         try:
-            user_is_page_owner = page_service.confirm_auth(g.user_id, link['page_id'])
-        except Exception as e:
-            user_is_page_owner = PageMessage.ERROR
-        finally:
-            if user_is_page_owner == PageMessage.ERROR:
-                return jsonify(response_from_message(ResponseText.FAIL.value, PageMessage.ERROR.value)), 500
-            elif not user_is_page_owner and user_is_page_owner is not None:
-                return jsonify(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_PERMISSION.value)), 401
-            elif user_is_page_owner == PageMessage.FAIL_NOT_EXISTS:
-                return jsonify(response_from_message(ResponseText.FAIL.value, PageMessage.FAIL_NOT_EXISTS.value)), 400
-
-        try:
             deleted_link = link_service.delete_link(link)
 
             if isinstance(deleted_link, LinkMessage):
                 message = response_from_message(ResponseText.FAIL.value, deleted_link.value)
                 return jsonify(message), 500
+            if not deleted_link:
+                return jsonify(response_from_message(ResponseText.FAIL.value, LinkMessage.ERROR.value)), 500
         except Exception as e:
             return jsonify(response_from_message(ResponseText.FAIL.value, LinkMessage.ERROR.value)), 500
 
