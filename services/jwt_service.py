@@ -44,7 +44,7 @@ class JWTService:
 
 
     # access token 발급
-    def generate_access_token(self, user_id: int):
+    def generate_access_token(self, user_id: int) -> str:
         """ access token 생성
 
         :param user_id: 사용자 id
