@@ -10,7 +10,6 @@ def create_auth_endpoint(services, config):
     jwt_service = services.jwt_service
     auth_service = services.auth_service
 
-
     # login
     @auth_view.route('/sign-in', methods=['POST'])
     def auth_sign_in():
@@ -45,17 +44,16 @@ def create_auth_endpoint(services, config):
 
         try:
             checked_user_id = auth_service.login(user)
-        except:
-            print(1)
-            checked_user_id = None
-        finally:
-            if checked_user_id is None:
-                print(1)
-                return response_from_message(ResponseText.FAIL.value, AuthMessage.ERROR.value)
-            elif checked_user_id == -1:
-                return response_from_message(ResponseText.FAIL.value, AuthMessage.FAIL_NOT_EXISTS.value)
-            elif checked_user_id == -2:
-                return response_from_message(ResponseText.FAIL.value, AuthMessage.FAIL_NOT_MATCH.value)
+
+            if isinstance(checked_user_id, AuthMessage):
+                message = response_from_message(ResponseText.FAIL.value, checked_user_id.value)
+                if checked_user_id == AuthMessage.FAIL_NOT_EXISTS:
+                    return jsonify(message), 400
+                elif checked_user_id == AuthMessage.FAIL_NOT_MATCH:
+                    return jsonify(message), 401
+                return jsonify(message), 500
+        except Exception as e:
+            return jsonify(response_from_message(ResponseText.FAIL.value, AuthMessage.ERROR.value)), 500
 
         try:
             access_token = jwt_service.generate_access_token(checked_user_id)
