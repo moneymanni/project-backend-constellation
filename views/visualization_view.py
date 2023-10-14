@@ -11,9 +11,9 @@ def create_visualization_endpoint(services):
     jwt_service = services.jwt_service
 
     # node
+    @visualization_view.route('/node', methods=['GET'])
     @jwt_service.login_required
     @note_service.confirm_auth
-    @visualization_view.route('/node', methods=['GET'])
     def node():
         note_id = request.args.get('noteId')
 
@@ -27,16 +27,17 @@ def create_visualization_endpoint(services):
             return jsonify(response_from_message(ResponseText.FAIL.value, VisualizationMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, VisualizationMessage.READ.value, {
-            [{
+            "nodeList": [{
                 'pageId': node['page_id'],
                 'keyword': node['keyword']
             } for node in node_list]
         })), 200
 
+
     # edge
+    @visualization_view.route('/edge', methods=['GET'])
     @jwt_service.login_required
     @note_service.confirm_auth
-    @visualization_view.route('/edge', methods=['GET'])
     def edge():
         note_id = request.args.get('noteId')
 
@@ -50,7 +51,7 @@ def create_visualization_endpoint(services):
             return jsonify(response_from_message(ResponseText.FAIL.value, VisualizationMessage.ERROR.value)), 500
 
         return jsonify(response_from_message(ResponseText.SUCCESS.value, VisualizationMessage.READ.value, {
-            [{
+            "edgeList": [{
                 'pageId': edge['page_id'],
                 'linkedPageId': edge['linked_page_id'],
                 'linkage': edge['linkage'],
