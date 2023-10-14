@@ -11,5 +11,7 @@ __all__ = [
     "NoteMessage",
     "PageMessage",
     "LinkMessage",
-    "VisualizationMessage"
+    "TagMessage",
+    "VisualizationMessage",
+    "RecommendMessage"
 ]

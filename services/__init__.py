@@ -4,6 +4,8 @@ from .user_service import UserService
 from .note_service import NoteService
 from .page_service import PageService
 from .link_service import LinkService
+from .tag_service import TagService
+from .recommend_service import RecommendService
 
 __all__ = [
     "JWTService",
@@ -11,5 +13,7 @@ __all__ = [
     "UserService",
     "NoteService",
     "PageService",
-    "LinkService"
+    "LinkService",
+    "TagService",
+    "RecommendService"
 ]
