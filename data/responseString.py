@@ -62,12 +62,16 @@ class PageMessage(Enum):
     ERROR = '[page] 요청 중 오류 발생'
 
 class LinkMessage(Enum):
-    CREATE = '[link] 페이지간 연결 정보 추가 완료'
-    READ = '[link] 페이지간 연결 정보 조회 완료'
-    UPDATE = '[link] 페이지간 연결 정보 수정 완료'
-    DELETE = '[link] 페이지간 연결 정보 삭제 완료'
-    GET = '[link] 페이지간 연결 정보 요청 완료'
+    CREATE = '[link] 페이지 간 연결 정보 추가 완료'
+    READ = '[link] 페이지 간 연결 정보 조회 완료'
+    UPDATE = '[link] 페이지 간 연결 정보 수정 완료'
+    DELETE = '[link] 페이지 간 연결 정보 삭제 완료'
+    GET = '[link] 페이지 간 연결 정보 요청 완료'
     FAIL_IS_INCLUDED_IN_DIFFERENT_NOTE = '[link] 노트가 다름'
     FAIL_NOT_PERMISSION = '[link] 접근 권한 없음'
     FAIL_IS_EXISTS = '[link] 이미 존재하는 연결입니다.'
     ERROR = '[link] 요청 중 오류 발생'
+
+class VisualizationMessage(Enum):
+    READ = '[visualization] 시각화 정보 조회 완료'
+    ERROR = '[visualization] 요청 중 오류 발생'
