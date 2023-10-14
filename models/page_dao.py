@@ -9,8 +9,8 @@ class PageDao:
     def insert_page_info(self, page: dict) -> int:
         """ 페이지의 정보를 받아 페이지를 생성합니다.
         그리고 페이지 id를 반환합니다.
-        만약 노트 정보 추가에 실패하면 -1을 반환하고,
-        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        만약 노트 정보 생성에 실패하면 -1을 반환하고,
+        에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page: 생성할 페이지 정보를 포함한 딕셔너리:
             {
@@ -50,7 +50,7 @@ class PageDao:
     def get_page_info(self, page_id: int) -> Optional[dict]:
         """페이지 id로 페이지 정보를 조회합니다.
         만약 페이지 정보가 존재하지 않으면 None을 반환하고,
-        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 페이지 정보가 포함된 딕셔너리:
@@ -95,7 +95,7 @@ class PageDao:
     def get_page_list(self, note_id: int) -> list:
         """노트 id로 노트의 모든 페이지 정보를 조회합니다.
         만약 페이지 정보가 존재하지 않으면 빈 리스트를 반환하고,
-        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param note_id: 조회할 노트 id
         :return: 모든 페이지 정보가 포함된 리스트:
@@ -140,7 +140,7 @@ class PageDao:
     def find_note_id_by_page_id(self, page_id: int) -> int:
         """페이지 id로 노트 id를 조회합니다.
         만약 페이지 정보가 존재하지 않으면 -1을 반환하고,
-        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 노트 id
@@ -162,7 +162,7 @@ class PageDao:
     def find_page_owner_id_by_page_id(self, page_id: int) -> int:
         """페이지 id로 노트의 소유주(사용자) id를 조회합니다.
         만약 페이지 정보가 존재하지 않으면 -1을 반환하고,
-        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page_id: 조회할 페이지 id
         :return: 사용자 id
@@ -184,7 +184,7 @@ class PageDao:
 
     def find_page_id_and_keyword_by_note_id(self, note_id: int) -> list:
         """노트 id로 노트 안에 있는 모든 페이지 id와 키워드를 조회합니다.
-        에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        에러가 발생하면 'Runtime Error' 예외가 발생합니다.
         
         :param note_id: 조회할 노트 id
         :return: 페이지 id와 키워드를 포함한 리스트: 
@@ -216,7 +216,7 @@ class PageDao:
     def update_page_header(self, page: dict) -> bool:
         """ 페이지 제목, 키워드를 수정합니다.
         그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        만약 에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page: 수정할 페이지 정보를 포함한 딕셔너리:
             {
@@ -246,7 +246,7 @@ class PageDao:
     def update_page_content(self, page: dict) -> bool:
         """페이지 내용을 수정합니다.
         그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        만약 에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page: 수정할 페이지 정보를 포함한 딕셔너리:
             {
@@ -274,7 +274,7 @@ class PageDao:
     def delete_page_info(self, page_id) -> bool:
         """페이지 정보를 삭제합니다.
         그리고 성공 여부(True/False)를 반환합니다.
-        만약 에러가 발생하면 'Runtiem Error' 예외가 발생합니다.
+        만약 에러가 발생하면 'Runtime Error' 예외가 발생합니다.
 
         :param page_id: 삭제할 페이지 id
         :return: 삭제 성공 여부 (True/False)
