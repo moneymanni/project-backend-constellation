@@ -6,6 +6,9 @@ Lib/
 pyvenv.cfg
 description.md
 
+*.model
+*.npy
+
 
 # Python
 
