@@ -72,6 +72,19 @@ class LinkMessage(Enum):
     FAIL_IS_EXISTS = '[link] 이미 존재하는 연결입니다.'
     ERROR = '[link] 요청 중 오류 발생'
 
+class TagMessage(Enum):
+    CREATE = '[tag] 태그 정보 추가 완료'
+    READ = '[tag] 태그 정보 조회 완료'
+    UPDATE = '[tag] 태그 정보 수정 완료'
+    DELETE = '[tag] 태그 정보 삭제 완료'
+    FAIL_IS_EXISTS = '[tag] 이미 존재하는 태그입니다.'
+    FAIL_NOT_EXISTS = '[tag] 존재하지 않는 태그입니다.'
+    ERROR = '[tag] 요청 중 오류 발생'
+
 class VisualizationMessage(Enum):
     READ = '[visualization] 시각화 정보 조회 완료'
     ERROR = '[visualization] 요청 중 오류 발생'
+
+class RecommendMessage(Enum):
+    GET = '[recommend] 요청 완료'
+    ERROR = '[recommend] 요청 중 오류 발생'
