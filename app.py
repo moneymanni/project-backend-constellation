@@ -26,6 +26,7 @@ def create_app(test_config = None):
     note_dao = NoteDao(database)
     page_dao = PageDao(database)
     link_dao = LinkDao(database)
+    # tag_dao = TagDao(database)
 
     ## Business Layer
     services = Services
@@ -35,6 +36,8 @@ def create_app(test_config = None):
     services.note_service = NoteService(note_dao)
     services.page_service = PageService(page_dao)
     services.link_service = LinkService(link_dao)
+    # services.tag_service = TagService(tag_dao, page_dao)
+    services.recommend_service = RecommendService()
 
     ## endpoint 생성
     create_endpoint(app, services)
@@ -43,7 +46,11 @@ def create_app(test_config = None):
     app.register_blueprint(create_note_endpoint(services), url_prefix='/note')
     app.register_blueprint(create_page_endpoint(services), url_prefix='/page')
     app.register_blueprint(create_link_endpoint(services), url_prefix='/link')
+    # app.register_blueprint(create_tag_endpoint(services), url_prefix='/tag')
     app.register_blueprint(create_visualization_endpoint(services), url_prefix='/visualization')
+    app.register_blueprint(create_recommend_endpoint(services), url_prefix='/recommend')
+
+
 
     return app
 
