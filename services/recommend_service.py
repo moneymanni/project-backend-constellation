@@ -51,7 +51,7 @@ class RecommendService:
         loaded_model = Word2Vec.load('./recommend/w2v_model/w2v_crow.model')
 
         try:
-            recommend_keywords = loaded_model.wv.most_similar(keyword, topn=25)
+            recommend_keywords = loaded_model.wv.most_similar(keyword, topn=5)
         except Exception as e:
             return RecommendMessage.ERROR
 
