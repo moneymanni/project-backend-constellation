@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, g
+import json
 
 from forms import LinkInfoCreateForm, LinkInfoDeleteForm
 from data import response_from_message, ResponseText, LinkMessage, PageMessage
@@ -32,9 +33,9 @@ def create_link_endpoint(services):
                 "message": str,                     # 결과 메시지
             }
         """
-        form = LinkInfoCreateForm(meta={"csrf": False})
-        if not form.validate():
-            return json.dumps(form.errors), 400
+        # form = LinkInfoCreateForm(meta={"csrf": False})
+        # if not form.validate():
+        #     return json.dumps(form.errors), 400
 
         body = request.json
         new_link = {
