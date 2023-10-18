@@ -39,9 +39,9 @@ def create_page_endpoint(services):
 
         body = request.json
         new_page = {
-            'title': '',
-            'keyword': '',
-            'content': '',
+            'title': body['title'],
+            'keyword': body['keyword'],
+            'content': body['content'],
             'note_id': body['noteId']
         }
 
