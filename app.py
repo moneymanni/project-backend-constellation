@@ -37,7 +37,7 @@ def create_app(test_config = None):
     services.page_service = PageService(page_dao)
     services.link_service = LinkService(link_dao)
     # services.tag_service = TagService(tag_dao, page_dao)
-    services.recommend_service = RecommendService()
+    services.recommend_service = RecommendService(page_dao)
 
     ## endpoint 생성
     create_endpoint(app, services)

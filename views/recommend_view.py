@@ -11,9 +11,10 @@ def create_recommend_endpoint(services):
     @recommend_view.route('/trend', methods=['GET'])
     def recommend_trend():
         keyword = request.args.get('keyword')
+        page_id = request.args.get('pageId')
 
         try:
-            recommend = recommend_service.recommend_googletrends(keyword)
+            recommend = recommend_service.recommend_googletrends(keyword, page_id)
 
             if isinstance(recommend, RecommendMessage):
                 message = response_from_message(ResponseText.FAIL.value, recommend.value)
@@ -31,9 +32,10 @@ def create_recommend_endpoint(services):
     @recommend_view.route('/association', methods=['GET'])
     def recommend_association():
         keyword = request.args.get('keyword')
+        page_id = request.args.get('pageId')
 
         try:
-            recommend = recommend_service.recommend_w2v(keyword)
+            recommend = recommend_service.recommend_w2v(keyword, page_id)
 
             if isinstance(recommend, RecommendMessage):
                 message = response_from_message(ResponseText.FAIL.value, recommend.value)
