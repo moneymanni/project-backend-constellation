@@ -93,7 +93,7 @@ def create_link_endpoint(services):
         page_id = request.args.get('pageId')
 
         try:
-            link_list = link_service.get_link_list_in_note(page_id)
+            link_list = link_service.get_link_list_on_page(page_id)
 
             if isinstance(link_list, LinkMessage):
                 message = response_from_message(ResponseText.FAIL.value, link_list.value)

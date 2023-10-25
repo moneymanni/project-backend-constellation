@@ -47,8 +47,14 @@ class LinkService:
                 'created_at': str       # 생성일
             }]
         """
+        print(page_id)
         try:
             link_list = self.link_dao.find_link_list_by_page_id(page_id)
+
+            for link in link_list:
+                if link['page_id'] != int(page_id):
+                    if link['page_id'] != page_id:
+                        link['page_id'], link['linked_page_id'] = link['linked_page_id'], link['page_id']
         except Exception as e:
             return LinkMessage.ERROR
 
@@ -89,6 +95,7 @@ class LinkService:
         :return: 삭제 성공 여부 (True/False)
         """
         try:
+            print(link)
             is_deleted = self.link_dao.delete_link_info(link)
         except Exception as e:
             return LinkMessage.ERROR
